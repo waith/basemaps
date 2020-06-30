@@ -15,7 +15,7 @@ export const LogConfig = {
     /** Get the currently configured logger */
     get(): pino.Logger {
         if (currentLog == null) {
-            currentLog = pino({ level: 'debug' });
+            currentLog = pino({ level: 'debug' }, pino.destination({ sync: false, minLength: 4096 }));
         }
         return currentLog;
     },
