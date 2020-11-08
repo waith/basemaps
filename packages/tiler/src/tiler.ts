@@ -128,6 +128,14 @@ export class Tiler {
         return composition;
     }
 
+    /**
+     * Convert the tile z value from the Tile Matrix Set to match the TileSet rule filter.
+     * Override this function to change it
+     */
+    convertZ(z: number): number {
+        return z;
+    }
+
     protected getTiles(tiff: CogTiff, x: number, y: number, z: number): Composition[] | null {
         const rasterBounds = this.getRasterTiffIntersection(tiff, x, y, z);
         if (rasterBounds == null) return null;

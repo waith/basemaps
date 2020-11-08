@@ -1,6 +1,7 @@
 import { EpsgCode, Tile, TileMatrixSet } from '@basemaps/geo';
 import { GoogleTms } from '@basemaps/geo/build/tms/google';
 import { Nztm2000Tms } from '@basemaps/geo/build/tms/nztm2000';
+import { Nztm2000AgolTms } from '@basemaps/geo/build/tms/nztm2000.agol';
 import { BBox } from '@linzjs/geojson';
 import { Projection } from './projection';
 
@@ -10,6 +11,9 @@ export interface LatLon {
 }
 
 const CodeMap = new Map<EpsgCode, ProjectionTileMatrixSet>();
+
+/** Alternative map of tile matrix sets */
+const AltMap = new Map<EpsgCode, Map<string, ProjectionTileMatrixSet>>();
 
 export class ProjectionTileMatrixSet {
     /** The underlying TileMatrixSet */
@@ -46,10 +50,17 @@ export class ProjectionTileMatrixSet {
 
     /**
      * Try to find a corresponding ProjectionTileMatrixSet for a number
+
      * @param epsgCode
+     * @param alt if present use an alternative ProjectionTileMatrixSet
      */
-    static tryGet(epsgCode?: EpsgCode): ProjectionTileMatrixSet | null {
-        return (epsgCode && CodeMap.get(epsgCode)) ?? null;
+    static tryGet(epsgCode?: EpsgCode, alt?: string): ProjectionTileMatrixSet | null {
+        if (epsgCode == null) return null;
+        if (alt != null) {
+            return AltMap.get(epsgCode)?.get(alt.toLowerCase()) ?? null;
+        }
+
+        return CodeMap.get(epsgCode) ?? null;
     }
 
     /**
@@ -118,3 +129,5 @@ export class ProjectionTileMatrixSet {
 
 CodeMap.set(EpsgCode.Google, new ProjectionTileMatrixSet(GoogleTms));
 CodeMap.set(EpsgCode.Nztm2000, new ProjectionTileMatrixSet(Nztm2000Tms));
+
+AltMap.set(EpsgCode.Nztm2000, new Map([['agol', new ProjectionTileMatrixSet(Nztm2000AgolTms)]]));
